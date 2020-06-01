@@ -1,8 +1,8 @@
 package main_processes;
 
+import database_processor.MongoDBprocessor;
 import threads_processes.TimeThread;
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import database_processor.MongoDB;
 
 /**
  *
@@ -12,15 +12,17 @@ public class Main {
 
     private static MongoDBprocessor tdb;
     private static TimeThread timeThread;
-    private static MongoCollection<Document> mongoCollection;
+    private static MongoDB mongoDB;
 
     public static void main(String args[]) {
-
         tdb = new MongoDBprocessor();
-        mongoCollection = tdb.connectDB();
-
+        mongoDB = tdb.connectDB();
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-p") || args[i].equals("-P")) {
+                tdb.getData(mongoDB);
+            }
+        }
         // create and start the time count thread
-        timeThread = new TimeThread(mongoCollection);
-
+        timeThread = new TimeThread(mongoDB);
     }
 }

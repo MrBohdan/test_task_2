@@ -1,8 +1,7 @@
 package threads_processes;
 
 import main_processes.TimeCount;
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import database_processor.MongoDB;
 
 /**
  *
@@ -12,18 +11,19 @@ public class TimeThread implements Runnable {
 
     private Thread tred;
     private TimeCount tc;
-    private final MongoCollection<Document> mongoCollection;
+    private static MongoDB mongoDB;
+    //private MongoDBprocessor mongoDBprocessor = new MongoDBprocessor();
 
     private static final String tname = " Time count thread : ";
 
-    public TimeThread(MongoCollection<Document> mongoCollection) {
-        this.mongoCollection = mongoCollection;
+    public TimeThread(MongoDB mongoDB) {
+        this.mongoDB = mongoDB;
         this.tred = new Thread(this, tname);
         this.tred.start();
     }
 
     @Override
     public void run() {
-        tc.timeCount(mongoCollection);
+        tc.timeCount(mongoDB);
     }
 }

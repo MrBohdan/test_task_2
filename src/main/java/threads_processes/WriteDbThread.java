@@ -1,9 +1,8 @@
 package threads_processes;
 
-import main_processes.MongoDBprocessor;
+import database_processor.MongoDBprocessor;
 import main_processes.TimeCount;
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import database_processor.MongoDB;
 
 /**
  *
@@ -14,12 +13,12 @@ public class WriteDbThread implements Runnable {
     private Thread tred;
     private TimeCount tc;
     private MongoDBprocessor tdb;
-    private final MongoCollection<Document> mongoCollection;
+    private static MongoDB mongoDB;
 
     public static final String tname = " Database processor thread : ";
 
-    public WriteDbThread(MongoCollection<Document> mongoCollection) {
-        this.mongoCollection = mongoCollection;
+    public WriteDbThread(MongoDB mongoDB) {
+        this.mongoDB = mongoDB;
         this.tred = new Thread(this, tname);
         this.tred.start();
     }
@@ -27,6 +26,6 @@ public class WriteDbThread implements Runnable {
     @Override
     public void run() {
         tdb = new MongoDBprocessor();
-        tdb.insertData(tc.timeStampArry, mongoCollection);
+        tdb.insertData(tc.timeStampArry, mongoDB);
     }
 }
