@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import main_processes.TimeCount;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -43,6 +44,9 @@ public class MongoDBprocessor {
     private MongoCollection<Document> mongoCollection;
     private Document document;
 
+    private FindIterable<Document> findIterable;
+    private MongoCursor<Document> cursor;
+
     public MongoDB connectDB() {
         // disable mongodb driver logging (enable just for warnings)
         Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
@@ -66,20 +70,29 @@ public class MongoDBprocessor {
         return mongoDB;
     }
 
-    public void insertData(ArrayDeque<ZonedDateTime> timeStampArry, MongoDB mongoDB) {
+    public void insertData(ArrayDeque<ZonedDateTime> timeStampArry, MongoDB mongoDB, TimeCount tc) {
         //connIsAvailable(mongoDB);
-        if (!timeStampArry.isEmpty()) {
-            try {
-                for (int a = 0; a <= timeStampArry.size(); a++) {
-                    // insert document to collection mongodb
-                    mongoCollection = mongoDB.getMongoCollection();
-                    mongoCollection.insertOne(setDoc(timeStampArry));
+        try {
+            Thread.sleep(1000);
+            while (tc.threadAlive) {
+                Thread.sleep(1000);
+                if (!timeStampArry.isEmpty()) {
+                    try {
+                        for (int a = 0; a <= timeStampArry.size(); a++) {
+                            // get collection 
+                            mongoCollection = mongoDB.getMongoCollection();
+                            // insert document to collection mongodb
+                            mongoCollection.insertOne(setDoc(timeStampArry));
+                        }
+                    } catch (MongoTimeoutException ex) {
+                        System.out.println(">Connection timed out, trying to reconnect...:");
+                    } catch (MongoSocketOpenException | MongoSocketReadTimeoutException ex) {
+                        System.out.println(">Connection was lost, trying to reconnect...:");
+                    }
                 }
-            } catch (MongoTimeoutException ex) {
-                System.out.println(">Connection timed out, trying to reconnect...:");
-            } catch (MongoSocketOpenException | MongoSocketReadTimeoutException ex) {
-                System.out.println(">Connection was lost, trying to reconnect...:");
             }
+        } catch (InterruptedException ex) {
+            System.out.println(">Thread Interrupted...:");
         }
     }
 
@@ -100,18 +113,24 @@ public class MongoDBprocessor {
         }
     }
 
+    //  get values from the database and display them
     public void getData(MongoDB mongoDB) {
+        // get collection 
         mongoCollection = mongoDB.getMongoCollection();
-        FindIterable<Document> fi = mongoCollection.find().projection(excludeId());
-        MongoCursor<Document> cursor = fi.iterator();
+        // get documents from the collection
+        findIterable = mongoCollection.find().projection(excludeId());
+        // initialize iterator 
+        cursor = findIterable.iterator();
         try {
             while (cursor.hasNext()) {
+                // display values
                 System.out.println(cursor.next().values());
             }
         } finally {
-            System.out.println(">All asdasd");
+            System.out.println(">That's All");
             cursor.close();
             close(mongoDB);
+            SystemExit();
         }
     }
 
@@ -120,4 +139,8 @@ public class MongoDBprocessor {
         mongoDB.getMongoClient().close();
     }
 
+    // to exit from the system 
+    public void SystemExit() {
+        System.exit(0);
+    }
 }

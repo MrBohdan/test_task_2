@@ -11,12 +11,13 @@ import database_processor.MongoDB;
 public class WriteDbThread implements Runnable {
 
     private Thread tred;
-    private TimeCount tc;
-    private MongoDBprocessor tdb;
+    private TimeCount timeCount;
+    private MongoDBprocessor mongoDBprocessor;
     private static MongoDB mongoDB;
 
     public static final String tname = " Database processor thread : ";
 
+    // database processor thread constructor 
     public WriteDbThread(MongoDB mongoDB) {
         this.mongoDB = mongoDB;
         this.tred = new Thread(this, tname);
@@ -25,7 +26,7 @@ public class WriteDbThread implements Runnable {
 
     @Override
     public void run() {
-        tdb = new MongoDBprocessor();
-        tdb.insertData(tc.timeStampArry, mongoDB);
+        mongoDBprocessor = new MongoDBprocessor();
+        mongoDBprocessor.insertData(timeCount.timeStampArry, mongoDB, timeCount);
     }
 }

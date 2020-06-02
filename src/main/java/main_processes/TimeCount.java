@@ -15,9 +15,11 @@ import java.util.ArrayDeque;
 public class TimeCount {
 
     public static ArrayDeque<ZonedDateTime> timeStampArry = new ArrayDeque();
+    public static ArrayDeque<ZonedDateTime> asd = new ArrayDeque();
 
     private static ZonedDateTime ldt;
     private static WriteDbThread writeDbThread;
+    public static boolean threadAlive;
 
     public static void timeCount(MongoDB mongoDB) {
         while (true) {
@@ -31,9 +33,7 @@ public class TimeCount {
                 // add an object of the type 'ZonedDateTime' to an 'ArrayDeque'
                 timeStampArry.addLast(ldt);
 
-                // create and start the database processor thread
-                writeDbThread = new WriteDbThread(mongoDB);
-
+                threadAlive = Thread.currentThread().isAlive();
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 System.out.println("Thread is interrupted");

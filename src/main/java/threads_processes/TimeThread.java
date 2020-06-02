@@ -10,12 +10,12 @@ import database_processor.MongoDB;
 public class TimeThread implements Runnable {
 
     private Thread tred;
-    private TimeCount tc;
+    private TimeCount timeCount;
     private static MongoDB mongoDB;
-    //private MongoDBprocessor mongoDBprocessor = new MongoDBprocessor();
-
+    
     private static final String tname = " Time count thread : ";
-
+    
+    // time count thread constructor 
     public TimeThread(MongoDB mongoDB) {
         this.mongoDB = mongoDB;
         this.tred = new Thread(this, tname);
@@ -24,6 +24,6 @@ public class TimeThread implements Runnable {
 
     @Override
     public void run() {
-        tc.timeCount(mongoDB);
+        timeCount.timeCount(mongoDB);
     }
 }
