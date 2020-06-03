@@ -15,10 +15,7 @@ import org.bson.types.ObjectId;
 import database_processor.MongoDB;
 import database_processor.MongoDBprocessor;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,23 +97,6 @@ public class JUnitTest {
         cursor = findIterable.iterator();
         // check if the document was inserted to MongoDB
         assertEquals(document, cursor.next());
-
-        mongoCollection.deleteOne(document);
-    }
-
-    @Test
-    @DisplayName("Test time count")
-    public void testTimeCount() {
-        try {
-            zonedDateTime = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-
-            Thread.sleep(1000);
-            zonedDateTime2 = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-
-            assertEquals(zonedDateTime2, zonedDateTime.plusSeconds(1));
-        } catch (InterruptedException ex) {
-            System.out.println(this + ">Thread Interrupted...:");
-        }
     }
 
     @Test
