@@ -100,8 +100,8 @@ public class JUnitTest {
     }
 
     @Test
-    @DisplayName("Test parameter")
-    public void testParameter() {
+    @DisplayName("Test time count")
+    public void testTimeCount() {
         zonedDateTime = timeCount.timeCount(mongoDB, true);
         zonedDateTime2 = timeCount.timeCount(mongoDB, true);
         // check if a method 'timeCount' working correctly 
