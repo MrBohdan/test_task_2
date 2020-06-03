@@ -62,10 +62,10 @@ public class JUnitTest {
 
     @BeforeAll
     @DisplayName("Connect to MongoDB")
-    public static MongoDB setUp() {
+    public static MongoDB setUp() throws Exception {
         Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
         connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
-
+     
         settings = MongoClientSettings.builder()
                 .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS))
                 .applyConnectionString(connString)
@@ -73,11 +73,11 @@ public class JUnitTest {
                 .build();
 
         mongoClient = MongoClients.create(settings);
-
+        
         mongoDatabase = mongoClient.getDatabase(nameDB);
 
         mongoCollection = mongoDatabase.getCollection(nameCollection);
-
+       
         mongoDB = new MongoDB(connString, settings, mongoClient, mongoDatabase, mongoCollection);
         assertNotNull(mongoDB); // check if the object is not 'null'
 
@@ -101,7 +101,7 @@ public class JUnitTest {
 
     @Test
     @DisplayName("Test time count")
-    public void testTimeCount() {
+    public void testTimeCount() throws Exception{
         zonedDateTime = timeCount.timeCount(mongoDB, true);
         zonedDateTime2 = timeCount.timeCount(mongoDB, true);
         // check if a method 'timeCount' working correctly 
@@ -110,7 +110,7 @@ public class JUnitTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    public static void tearDown()  throws Exception{
         mongoDB.getMongoDatabase().drop(); // drop the test database 
         mongoDB.getMongoClient().close(); // close the MongoDB connection
     }
