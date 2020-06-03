@@ -2,6 +2,7 @@ package database_processor;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoConfigurationException;
 import com.mongodb.MongoSecurityException;
 import com.mongodb.MongoSocketOpenException;
 import com.mongodb.MongoSocketReadTimeoutException;
@@ -12,7 +13,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Projections.excludeId;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,10 +20,12 @@ import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import main_processes.TimeCount;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+
+import main_processes.TimeCount;
+import static com.mongodb.client.model.Projections.excludeId;
 
 /**
  *
@@ -31,11 +33,16 @@ import org.bson.types.ObjectId;
  */
 public class MongoDBprocessor {
 
+    // connection strings
     //private final String connURL = "mongodb://localhost";
     private final String connURL = "mongodb+srv://admin:admin@timedbcollection-bpbgq.mongodb.net/test?retryWrites=true&w=majority";
+    // how long try to connect before time out
     private final String CONNECT_TIMEOUT_MS = "&connectTimeoutMS=2000";
+    // how long system will try to send or receive socket before time out
     private final String SOCKET_TIMEOUT_MS = "&socketTimeoutMS=2000";
+    // how long system will try to write before time out
     private final String WRITE_TIMEOUT_MS = "&wtimeoutMS=2000";
+    // change default timeout
     private final String SERVER_SELECTION_TIMEOUT_MS = "&serverSelectionTimeoutMS=5000";
     private final String nameDB = "timeDB";
     private final String nameCollection = "timeDbCollection";
@@ -53,30 +60,36 @@ public class MongoDBprocessor {
     private MongoCursor<Document> cursor;
 
     public MongoDB connectDB() {
-        // disable mongodb driver logging (enable just for warnings)
-        Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
-        // set connection string
-        connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
-        // set up behavior for the 'MongoClients'
-        settings = MongoClientSettings.builder()
-                .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS)) // block waiting for connection 
-                .applyConnectionString(connString)
-                .retryWrites(true)
-                .build();
+        try {
+            // disable mongodb driver logging (enable just for warnings)
+            Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
+            // set connection string
+            connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
+            // set up behavior for the 'MongoClients'
+            settings = MongoClientSettings.builder()
+                    .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS)) // block waiting for connection 
+                    .applyConnectionString(connString)
+                    .retryWrites(true)
+                    .build();
 
-        // creating a mongo client 
-        mongoClient = MongoClients.create(settings);
-        // get a mongo database 
-        mongoDatabase = mongoClient.getDatabase(nameDB);
-        // get a mongo collection 
-        mongoCollection = mongoDatabase.getCollection(nameCollection);
+            // creating a mongo client 
+            mongoClient = MongoClients.create(settings);
+            // get a mongo database 
+            mongoDatabase = mongoClient.getDatabase(nameDB);
+            // get a mongo collection 
+            mongoCollection = mongoDatabase.getCollection(nameCollection);
+        } catch (MongoConfigurationException | MongoSocketOpenException ex) {
+            System.out.println(">Connection lost, trying to reconnect...:");
+            connectDB();
+        }
         // pass values to a constructor 
         mongoDB = new MongoDB(connString, settings, mongoClient, mongoDatabase, mongoCollection);
 
         return mongoDB;
     }
+    // to insert data to the database
 
-    public void insertData(ArrayDeque<ZonedDateTime> timeStampArry, MongoDB mongoDB, TimeCount timeCount) {
+    public void insertDocuments(ArrayDeque<ZonedDateTime> timeStampArry, MongoDB mongoDB, TimeCount timeCount) {
         try {
             Thread.sleep(1000);
             while (timeCount.threadAlive) {
@@ -87,7 +100,7 @@ public class MongoDBprocessor {
                             // get collection 
                             mongoCollection = mongoDB.getMongoCollection();
                             // insert document to collection mongodb
-                            mongoCollection.insertOne(setDoc(timeStampArry));
+                            mongoCollection.insertOne(setDocument(timeStampArry));
                         }
                     } catch (MongoTimeoutException ex) {
                         System.out.println(">Connection timed out, trying to reconnect...:");
@@ -101,7 +114,7 @@ public class MongoDBprocessor {
         }
     }
 
-    public Document setDoc(ArrayDeque<ZonedDateTime> timeStampArry) {
+    public Document setDocument(ArrayDeque<ZonedDateTime> timeStampArry) {
         // creating a document 
         document = new Document("_id", new ObjectId());
         document.append("time", timeStampArry.pop().format(DateTimeFormatter.ofPattern("hh:mm:ss")));
@@ -109,7 +122,7 @@ public class MongoDBprocessor {
     }
 
     //  get values from the database and display them
-    public void getData(MongoDB mongoDB) {
+    public void getDocuments(MongoDB mongoDB) {
         // get collection 
         mongoCollection = mongoDB.getMongoCollection();
         // get documents from the collection

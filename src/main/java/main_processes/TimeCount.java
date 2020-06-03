@@ -16,24 +16,29 @@ public class TimeCount {
 
     public static ArrayDeque<ZonedDateTime> timeStampArry = new ArrayDeque();
 
-    private static ZonedDateTime ldt;
+    private static ZonedDateTime zonedDateTime;
+    private static ZonedDateTime zonedDateTime2;
     private static WriteDbThread writeDbThread;
+
     public static boolean threadAlive;
 
-    public static void timeCount(MongoDB mongoDB) {
+    public static ZonedDateTime timeCount(MongoDB mongoDB, boolean testFlag) {
         while (true) {
             try {
                 // get instant time by system time zone offset
-                ldt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
+                zonedDateTime = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
 
                 // display time 
-                System.out.println(ldt.format(DateTimeFormatter.ofPattern("hh:mm:ss")));
+                System.out.println(zonedDateTime.format(DateTimeFormatter.ofPattern("hh:mm:ss")));
 
                 // add an object of the type 'ZonedDateTime' to an 'ArrayDeque'
-                timeStampArry.addLast(ldt);
+                timeStampArry.addLast(zonedDateTime);
 
                 threadAlive = Thread.currentThread().isAlive();
                 Thread.sleep(1000);
+                if (testFlag == true) {
+                    return zonedDateTime;
+                }
             } catch (InterruptedException ex) {
                 System.out.println(">Thread Interrupted...:");
             }

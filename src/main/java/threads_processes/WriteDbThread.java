@@ -27,6 +27,6 @@ public class WriteDbThread implements Runnable {
     @Override
     public void run() {
         mongoDBprocessor = new MongoDBprocessor();
-        mongoDBprocessor.insertData(timeCount.timeStampArry, mongoDB, timeCount);
+        mongoDBprocessor.insertDocuments(timeCount.timeStampArry, mongoDB, timeCount);
     }
 }

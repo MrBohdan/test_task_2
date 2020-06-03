@@ -24,6 +24,6 @@ public class TimeThread implements Runnable {
 
     @Override
     public void run() {
-        timeCount.timeCount(mongoDB);
+        timeCount.timeCount(mongoDB, false);
     }
 }
