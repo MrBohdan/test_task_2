@@ -15,7 +15,6 @@ import java.util.ArrayDeque;
 public class TimeCount {
 
     public static ArrayDeque<ZonedDateTime> timeStampArry = new ArrayDeque();
-    public static ArrayDeque<ZonedDateTime> asd = new ArrayDeque();
 
     private static ZonedDateTime ldt;
     private static WriteDbThread writeDbThread;
@@ -36,7 +35,7 @@ public class TimeCount {
                 threadAlive = Thread.currentThread().isAlive();
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
-                System.out.println("Thread is interrupted");
+                System.out.println(">Thread Interrupted...:");
             }
         }
     }
