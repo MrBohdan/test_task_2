@@ -26,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -34,15 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Bohdan Skrypnyk
  */
 public class JUnitTest {
-
-    //private final String connURL = "mongodb://localhost";
-    private static final String connURL = "mongodb+srv://admin:admin@timedbcollection-bpbgq.mongodb.net/test?retryWrites=true&w=majority";
-    private static final String CONNECT_TIMEOUT_MS = "&connectTimeoutMS=2000";
-    private static final String SOCKET_TIMEOUT_MS = "&socketTimeoutMS=2000";
-    private static final String WRITE_TIMEOUT_MS = "&wtimeoutMS=2000";
-    private static final String SERVER_SELECTION_TIMEOUT_MS = "&serverSelectionTimeoutMS=5000";
-    private static final String nameDB = "test";
-    private static final String nameCollection = "test";
 
     private static ConnectionString connString;
     private static MongoClientSettings settings;
@@ -54,6 +44,7 @@ public class JUnitTest {
 
     private static MongoDbModel mongoDB;
     private static TimeCount timeCount;
+    private static MongoDbProcessor mongoDbProcessor;
 
     private static FindIterable<Document> findIterable;
     private static MongoCursor<Document> cursor;
@@ -64,25 +55,7 @@ public class JUnitTest {
     @BeforeAll
     @DisplayName("Connect to MongoDB")
     public static MongoDbModel setUp() throws Exception {
-        Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
-        connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
-
-        settings = MongoClientSettings.builder()
-                .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS))
-                .applyConnectionString(connString)
-                .retryWrites(true)
-                .build();
-
-        mongoClient = MongoClients.create(settings);
-
-        mongoDatabase = mongoClient.getDatabase(nameDB);
-
-        mongoCollection = mongoDatabase.getCollection(nameCollection);
-
-        mongoDB = new MongoDbModel(connString, settings, mongoClient, mongoDatabase, mongoCollection);
-        assertNotNull(mongoDB); // check if the object is not 'null'
-
-        return mongoDB;
+        return mongoDB = mongoDbProcessor.connectDB();
     }
 
     @Test
@@ -110,7 +83,7 @@ public class JUnitTest {
         time2 = timeCount.timeCount(mongoDB, true);
         assertTrue(time1.getTimestamp().before(time2.getTimestamp()));
     }
-    
+
     @AfterAll
     public static void tearDown() throws Exception {
         mongoDB.getMongoDatabase().drop(); // drop the test database 
