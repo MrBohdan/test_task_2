@@ -12,13 +12,13 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import model.MongoDB;
-import database.MongoDBprocessor;
+import model.MongoDbModel;
+import database.MongoDbProcessor;
 
-import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.TimeModel;
 import service.TimeCount;
 
 import org.junit.jupiter.api.AfterAll;
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -49,23 +50,23 @@ public class JUnitTest {
     private static MongoDatabase mongoDatabase;
     private static MongoCollection<Document> mongoCollection;
     private static Document document;
-    private static MongoDBprocessor mongoDBprocessor;
+    private static MongoDbProcessor mongoDBprocessor;
 
-    private static MongoDB mongoDB;
+    private static MongoDbModel mongoDB;
     private static TimeCount timeCount;
 
     private static FindIterable<Document> findIterable;
     private static MongoCursor<Document> cursor;
 
-    private static ZonedDateTime zonedDateTime;
-    private static ZonedDateTime zonedDateTime2;
+    private static TimeModel time1;
+    private static TimeModel time2;
 
     @BeforeAll
     @DisplayName("Connect to MongoDB")
-    public static MongoDB setUp() throws Exception {
+    public static MongoDbModel setUp() throws Exception {
         Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
         connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
-     
+
         settings = MongoClientSettings.builder()
                 .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS))
                 .applyConnectionString(connString)
@@ -73,12 +74,12 @@ public class JUnitTest {
                 .build();
 
         mongoClient = MongoClients.create(settings);
-        
+
         mongoDatabase = mongoClient.getDatabase(nameDB);
 
         mongoCollection = mongoDatabase.getCollection(nameCollection);
-       
-        mongoDB = new MongoDB(connString, settings, mongoClient, mongoDatabase, mongoCollection);
+
+        mongoDB = new MongoDbModel(connString, settings, mongoClient, mongoDatabase, mongoCollection);
         assertNotNull(mongoDB); // check if the object is not 'null'
 
         return mongoDB;
@@ -95,23 +96,24 @@ public class JUnitTest {
         mongoCollection.insertOne(document);
         findIterable = mongoCollection.find(document);
         cursor = findIterable.iterator();
-        // check if the document was inserted to MongoDB
+        // check if the document was inserted to MongoDbModel
         assertEquals(document, cursor.next());
     }
 
+    /**
+     * check if a method 'timeCount' working correctly
+     */
     @Test
     @DisplayName("Test time count")
-    public void testTimeCount() throws Exception{
-//        zonedDateTime = timeCount.timeCount(mongoDB, true);
-//        zonedDateTime2 = timeCount.timeCount(mongoDB, true);
-        // check if a method 'timeCount' working correctly 
-        // between 'zonedDateTime' and 'zonedDateTime2' must be 1 second dif
-        assertEquals(zonedDateTime.plusSeconds(1), zonedDateTime2);
+    public void testTimeCount() throws Exception {
+        time1 = timeCount.timeCount(mongoDB, true);
+        time2 = timeCount.timeCount(mongoDB, true);
+        assertTrue(time1.getTimestamp().before(time2.getTimestamp()));
     }
-
+    
     @AfterAll
-    public static void tearDown()  throws Exception{
+    public static void tearDown() throws Exception {
         mongoDB.getMongoDatabase().drop(); // drop the test database 
-        mongoDB.getMongoClient().close(); // close the MongoDB connection
+        mongoDB.getMongoClient().close(); // close the MongoDbModel connection
     }
 }

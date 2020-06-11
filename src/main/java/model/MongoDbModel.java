@@ -12,7 +12,7 @@ import org.bson.Document;
  *
  * @author Bohdan Skrypnyk
  */
-public class MongoDB {
+public class MongoDbModel {
 
     private final ConnectionString connString;
     private final MongoClientSettings settings;
@@ -20,8 +20,8 @@ public class MongoDB {
     private final MongoDatabase mongoDatabase;
     private final MongoCollection<Document> mongoCollection;
 
-    // constructor for the 'MongoDB'
-    public MongoDB(ConnectionString connString, MongoClientSettings settings, MongoClient mongoClient, MongoDatabase mongoDatabase, MongoCollection<Document> mongoCollection) {
+    // constructor for the 'MongoDbModel'
+    public MongoDbModel(ConnectionString connString, MongoClientSettings settings, MongoClient mongoClient, MongoDatabase mongoDatabase, MongoCollection<Document> mongoCollection) {
         this.connString = connString;
         this.settings = settings;
         this.mongoClient = mongoClient;

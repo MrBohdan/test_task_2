@@ -6,15 +6,15 @@ import java.sql.Timestamp;
  *
  * @author Bohdan Skrypnyk
  */
-public class Time {
+public class TimeModel {
 
     private Timestamp timestamp;
 
-    public Time(Timestamp timestamp) {
+    public TimeModel(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
-    public Time() {
+    public TimeModel() {
     }
 
     public Timestamp getTimestamp() {

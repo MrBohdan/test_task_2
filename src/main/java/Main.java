@@ -1,8 +1,8 @@
 
 
-import database.MongoDBprocessor;
+import database.MongoDbProcessor;
 import threadService.TimeThread;
-import model.MongoDB;
+import model.MongoDbModel;
 import threadService.WriteDbThread;
 
 /**
@@ -11,14 +11,14 @@ import threadService.WriteDbThread;
  */
 public class Main {
 
-    private static MongoDBprocessor mongoDBprocessor;
-    private static MongoDB mongoDB;
+    private static MongoDbProcessor mongoDBprocessor;
+    private static MongoDbModel mongoDB;
 
     private static TimeThread timeThread;
     private static WriteDbThread writeDbThread;
 
     public static void main(String args[]) {
-        mongoDBprocessor = new MongoDBprocessor();
+        mongoDBprocessor = new MongoDbProcessor();
         mongoDB = mongoDBprocessor.connectDB();
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-p") || args[i].equals("-P")) {

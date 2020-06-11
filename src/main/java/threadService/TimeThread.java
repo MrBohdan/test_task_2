@@ -1,7 +1,7 @@
 package threadService;
 
 import service.TimeCount;
-import model.MongoDB;
+import model.MongoDbModel;
 
 /**
  *
@@ -11,12 +11,12 @@ public class TimeThread implements Runnable {
 
     private Thread tred;
     private TimeCount timeCount;
-    private static MongoDB mongoDB;
+    private static MongoDbModel mongoDB;
     
     private static final String tname = " Time count thread : ";
     
     // time count thread constructor 
-    public TimeThread(MongoDB mongoDB) {
+    public TimeThread(MongoDbModel mongoDB) {
         this.mongoDB = mongoDB;
         this.tred = new Thread(this, tname);
         this.tred.start();

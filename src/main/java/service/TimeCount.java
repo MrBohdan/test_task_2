@@ -1,14 +1,10 @@
 package service;
 
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
-import threadService.WriteDbThread;
-
 import java.sql.Timestamp;
 import java.util.ArrayDeque;
 
-import model.MongoDB;
-import model.Time;
+import model.MongoDbModel;
+import model.TimeModel;
 
 /**
  *
@@ -16,25 +12,20 @@ import model.Time;
  */
 public class TimeCount {
 
-    private static Time time;
+    private static TimeModel time;
     private static Timestamp timestamp;
 
-    public static ArrayDeque<Time> timeStampArry = new ArrayDeque();
+    public static ArrayDeque<TimeModel> timeStampArry = new ArrayDeque();
 
-    private static final Logger log = LoggerFactory.getLogger(TimeCount.class);
-
-    public static Time timeCount(MongoDB mongoDB, boolean testFlag) {
+    public static TimeModel timeCount(MongoDbModel mongoDB, boolean testFlag) {
         while (true) {
             try {
                 timestamp = new Timestamp(System.currentTimeMillis());
-                time = new Time(timestamp);
+                time = new TimeModel(timestamp);
 
                 System.out.println(time.show());
                 // add an object of the type 'ZonedDateTime' to an 'ArrayDeque'
-                timeStampArry.addLast(new Time(timestamp));
-
-
-                log.debug("Save new timestamp: {}", timestamp);
+                timeStampArry.addLast(new TimeModel(timestamp));
 
                 Thread.sleep(1000);
                 if (testFlag == true) {
@@ -45,4 +36,5 @@ public class TimeCount {
             }
         }
     }
+    
 }
