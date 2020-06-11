@@ -1,7 +1,7 @@
-package threads_processes;
+package threadService;
 
-import main_processes.TimeCount;
-import database_processor.MongoDB;
+import service.TimeCount;
+import model.MongoDB;
 
 /**
  *

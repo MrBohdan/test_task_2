@@ -1,4 +1,4 @@
-package database_processor;
+package model;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;

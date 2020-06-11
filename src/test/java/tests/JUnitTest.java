@@ -12,14 +12,14 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import database_processor.MongoDB;
-import database_processor.MongoDBprocessor;
+import model.MongoDB;
+import database.MongoDBprocessor;
 
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import main_processes.TimeCount;
+import service.TimeCount;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -102,8 +102,8 @@ public class JUnitTest {
     @Test
     @DisplayName("Test time count")
     public void testTimeCount() throws Exception{
-        zonedDateTime = timeCount.timeCount(mongoDB, true);
-        zonedDateTime2 = timeCount.timeCount(mongoDB, true);
+//        zonedDateTime = timeCount.timeCount(mongoDB, true);
+//        zonedDateTime2 = timeCount.timeCount(mongoDB, true);
         // check if a method 'timeCount' working correctly 
         // between 'zonedDateTime' and 'zonedDateTime2' must be 1 second dif
         assertEquals(zonedDateTime.plusSeconds(1), zonedDateTime2);

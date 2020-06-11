@@ -1,9 +1,9 @@
-package main_processes;
 
-import database_processor.MongoDBprocessor;
-import threads_processes.TimeThread;
-import database_processor.MongoDB;
-import threads_processes.WriteDbThread;
+
+import database.MongoDBprocessor;
+import threadService.TimeThread;
+import model.MongoDB;
+import threadService.WriteDbThread;
 
 /**
  *

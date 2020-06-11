@@ -1,5 +1,6 @@
-package database_processor;
+package database;
 
+import model.MongoDB;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoConfigurationException;
@@ -14,18 +15,16 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import main_processes.TimeCount;
+import service.TimeCount;
 import static com.mongodb.client.model.Projections.excludeId;
+import java.sql.Timestamp;
+import model.Time;
 
 /**
  *
@@ -61,8 +60,6 @@ public class MongoDBprocessor {
 
     public MongoDB connectDB() {
         try {
-            // disable mongodb driver logging (enable just for warnings)
-            Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
             // set connection string
             connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
             // set up behavior for the 'MongoClients'
@@ -89,10 +86,10 @@ public class MongoDBprocessor {
     }
     // to insert data to the database
 
-    public void insertDocuments(ArrayDeque<ZonedDateTime> timeStampArry, MongoDB mongoDB, TimeCount timeCount) {
+    public void insertDocuments(ArrayDeque<Time> timeStampArry, MongoDB mongoDB, TimeCount timeCount) {
         try {
             Thread.sleep(1000);
-            while (timeCount.threadAlive) {
+            while (true) {
                 Thread.sleep(1000);
                 if (!timeStampArry.isEmpty()) {
                     try {
@@ -114,10 +111,10 @@ public class MongoDBprocessor {
         }
     }
 
-    public Document setDocument(ArrayDeque<ZonedDateTime> timeStampArry) {
+    public Document setDocument(ArrayDeque<Time> timeStampArry) {
         // creating a document 
         document = new Document("_id", new ObjectId());
-        document.append("time", timeStampArry.pop().format(DateTimeFormatter.ofPattern("hh:mm:ss")));
+        document.append("time", new Timestamp(timeStampArry.pop().getTimestamp().getTime()));
         return document;
     }
 
@@ -125,8 +122,10 @@ public class MongoDBprocessor {
     public void getDocuments(MongoDB mongoDB) {
         // get collection 
         mongoCollection = mongoDB.getMongoCollection();
+
         // get documents from the collection
         findIterable = mongoCollection.find().projection(excludeId());
+
         // initialize iterator 
         cursor = findIterable.iterator();
         try {
@@ -135,7 +134,6 @@ public class MongoDBprocessor {
                 System.out.println(cursor.next().values());
             }
         } finally {
-            System.out.println(">That's All");
             cursor.close();
             close(mongoDB);
             SystemExit();
