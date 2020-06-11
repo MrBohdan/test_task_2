@@ -1,13 +1,8 @@
 package tests;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -15,9 +10,6 @@ import org.bson.types.ObjectId;
 import model.MongoDbModel;
 import database.MongoDbProcessor;
 
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import model.TimeModel;
 import service.TimeCount;
 
@@ -34,13 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class JUnitTest {
 
-    private static ConnectionString connString;
-    private static MongoClientSettings settings;
-    private static MongoClient mongoClient;
-    private static MongoDatabase mongoDatabase;
     private static MongoCollection<Document> mongoCollection;
     private static Document document;
-    private static MongoDbProcessor mongoDBprocessor;
 
     private static MongoDbModel mongoDB;
     private static TimeCount timeCount;
@@ -54,10 +41,15 @@ public class JUnitTest {
 
     @BeforeAll
     @DisplayName("Connect to MongoDB")
-    public static MongoDbModel setUp() throws Exception {
-        return mongoDB = mongoDbProcessor.connectDB();
+    public static void setUp() throws Exception {
+        mongoDbProcessor = new MongoDbProcessor();
+        mongoDB = mongoDbProcessor.connectDB();
     }
 
+    /**
+     * Check if the document was inserted to MongoDbModel
+     *
+     */
     @Test
     @DisplayName("Test insert document")
     public void testInsertDocument() throws Exception {
@@ -69,12 +61,14 @@ public class JUnitTest {
         mongoCollection.insertOne(document);
         findIterable = mongoCollection.find(document);
         cursor = findIterable.iterator();
-        // check if the document was inserted to MongoDbModel
         assertEquals(document, cursor.next());
+
+        mongoCollection.deleteOne(document);
     }
 
     /**
-     * check if a method 'timeCount' working correctly
+     * Check if a method 'timeCount' working correctly
+     *
      */
     @Test
     @DisplayName("Test time count")
@@ -84,9 +78,12 @@ public class JUnitTest {
         assertTrue(time1.getTimestamp().before(time2.getTimestamp()));
     }
 
+    /**
+     * Close the MongoDbModel connection
+     *
+     */
     @AfterAll
     public static void tearDown() throws Exception {
-        mongoDB.getMongoDatabase().drop(); // drop the test database 
-        mongoDB.getMongoClient().close(); // close the MongoDbModel connection
+        mongoDB.getMongoClient().close();
     }
 }
