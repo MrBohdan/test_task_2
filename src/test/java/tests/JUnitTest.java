@@ -47,7 +47,7 @@ public class JUnitTest {
     }
 
     /**
-     * Check if the document was inserted to MongoDbModel
+     * Check if the document was inserted to MongoDB
      *
      */
     @Test
@@ -79,7 +79,7 @@ public class JUnitTest {
     }
 
     /**
-     * Close the MongoDbModel connection
+     * Close the MongoDB connection
      *
      */
     @AfterAll
