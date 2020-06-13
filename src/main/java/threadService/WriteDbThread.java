@@ -18,7 +18,7 @@ public class WriteDbThread implements Runnable {
     public static final String tname = " Database processor thread : ";
 
     // database processor thread constructor 
-    public WriteDbThread(MongoDbModel mongoDB) {
+    public WriteDbThread() {
         this.mongoDB = mongoDB;
         this.tred = new Thread(this, tname);
         this.tred.start();
@@ -27,6 +27,6 @@ public class WriteDbThread implements Runnable {
     @Override
     public void run() {
         mongoDBprocessor = new MongoDbProcessor();
-        mongoDBprocessor.insertDocuments(timeCount.timeStampArry, mongoDB, timeCount);
+        mongoDBprocessor.insertDocuments(timeCount.timeStampArry, timeCount);
     }
 }

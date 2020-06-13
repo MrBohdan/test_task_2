@@ -19,4 +19,10 @@ public interface MongoDbConfig {
     final String SERVER_SELECTION_TIMEOUT_MS = "&serverSelectionTimeoutMS=5000";
     final String nameDB = "timeDB";
     final String nameCollection = "timeDbCollection";
+    
+    StringBuffer stringBuffer = new StringBuffer(URL);
+    final String connectionString = stringBuffer.append(CONNECT_TIMEOUT_MS)
+            .append(SOCKET_TIMEOUT_MS)
+            .append(WRITE_TIMEOUT_MS)
+            .append(SERVER_SELECTION_TIMEOUT_MS).toString();
 }

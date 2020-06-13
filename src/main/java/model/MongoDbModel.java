@@ -14,11 +14,11 @@ import org.bson.Document;
  */
 public class MongoDbModel {
 
-    private final ConnectionString connString;
-    private final MongoClientSettings settings;
-    private final MongoClient mongoClient;
-    private final MongoDatabase mongoDatabase;
-    private final MongoCollection<Document> mongoCollection;
+    private static ConnectionString connString;
+    private static MongoClientSettings settings;
+    private static MongoClient mongoClient;
+    private static MongoDatabase mongoDatabase;
+    private static MongoCollection<Document> mongoCollection;
 
     // constructor for the 'MongoDbModel'
     public MongoDbModel(ConnectionString connString, MongoClientSettings settings, MongoClient mongoClient, MongoDatabase mongoDatabase, MongoCollection<Document> mongoCollection) {
@@ -26,6 +26,31 @@ public class MongoDbModel {
         this.settings = settings;
         this.mongoClient = mongoClient;
         this.mongoDatabase = mongoDatabase;
+        this.mongoCollection = mongoCollection;
+    }
+
+    public MongoDbModel() {
+
+    }
+
+    // setters
+    public void setConnString(ConnectionString connString) {
+        this.connString = new ConnectionString(connString.toString());
+    }
+
+    public void setSettings(MongoClientSettings settings) {
+        this.settings = settings;
+    }
+
+    public void setMongoClient(MongoClient mongoClient) {
+        this.mongoClient = mongoClient;
+    }
+
+    public void setMongoDatabase(MongoDatabase mongoDatabase) {
+        this.mongoDatabase = mongoDatabase;
+    }
+
+    public void setMongoCollection(MongoCollection<Document> mongoCollection) {
         this.mongoCollection = mongoCollection;
     }
 

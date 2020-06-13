@@ -2,8 +2,8 @@ package service;
 
 import java.sql.Timestamp;
 import java.util.ArrayDeque;
+import java.util.concurrent.TimeUnit;
 
-import model.MongoDbModel;
 import model.TimeModel;
 
 /**
@@ -12,22 +12,31 @@ import model.TimeModel;
  */
 public class TimeCount {
 
-    private static TimeModel time;
+    public static TimeModel time;
     private static Timestamp timestamp;
-
+    
     public static ArrayDeque<TimeModel> timeStampArry = new ArrayDeque();
 
-    public static TimeModel timeCount(MongoDbModel mongoDB, boolean testFlag) {
+    /**
+     * Check if a method 'timeCount' working correctly
+     *
+     * @param testFlag used to stop while-loop for JUnit testing.
+     * @return the current timestamp.
+     */
+    public static TimeModel timeCount(boolean testFlag) {
         while (true) {
             try {
                 timestamp = new Timestamp(System.currentTimeMillis());
                 time = new TimeModel(timestamp);
-
+                
+                time.setTimestamp(timestamp);
+                
                 System.out.println(time.show());
-                // add an object of the type 'ZonedDateTime' to an 'ArrayDeque'
+                // add an object of the type 'TimeModel' to an 'ArrayDeque'
                 timeStampArry.addLast(new TimeModel(timestamp));
 
                 Thread.sleep(1000);
+                //TimeUnit.SECONDS.sleep(1);
                 if (testFlag == true) {
                     return time;
                 }
@@ -36,5 +45,5 @@ public class TimeCount {
             }
         }
     }
-    
+
 }

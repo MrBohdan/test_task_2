@@ -73,8 +73,8 @@ public class JUnitTest {
     @Test
     @DisplayName("Test time count")
     public void testTimeCount() throws Exception {
-        time1 = timeCount.timeCount(mongoDB, true);
-        time2 = timeCount.timeCount(mongoDB, true);
+        time1 = timeCount.timeCount(true);
+        time2 = timeCount.timeCount(true);
         assertTrue(time1.getTimestamp().before(time2.getTimestamp()));
     }
 
