@@ -1,6 +1,5 @@
 package database;
 
-import model.MongoDB;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoConfigurationException;
@@ -9,84 +8,69 @@ import com.mongodb.MongoSocketOpenException;
 import com.mongodb.MongoSocketReadTimeoutException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
+
+import static com.mongodb.client.model.Projections.excludeId;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
+import java.sql.Timestamp;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import service.TimeCount;
-import static com.mongodb.client.model.Projections.excludeId;
-import java.sql.Timestamp;
-import model.Time;
+import model.TimeModel;
+import model.MongoDbModel;
 
 /**
  *
  * @author Bohdan Skrypnyk
  */
-public class MongoDBprocessor {
+public class MongoDbProcessor implements MongoDbConfig {
 
-    // connection strings
-    //private final String connURL = "mongodb://localhost";
-    private final String connURL = "mongodb+srv://admin:admin@timedbcollection-bpbgq.mongodb.net/test?retryWrites=true&w=majority";
-    // how long try to connect before time out
-    private final String CONNECT_TIMEOUT_MS = "&connectTimeoutMS=2000";
-    // how long system will try to send or receive socket before time out
-    private final String SOCKET_TIMEOUT_MS = "&socketTimeoutMS=2000";
-    // how long system will try to write before time out
-    private final String WRITE_TIMEOUT_MS = "&wtimeoutMS=2000";
-    // change default timeout
-    private final String SERVER_SELECTION_TIMEOUT_MS = "&serverSelectionTimeoutMS=5000";
-    private final String nameDB = "timeDB";
-    private final String nameCollection = "timeDbCollection";
-
-    private MongoDB mongoDB;
-
-    private ConnectionString connString;
-    private MongoClientSettings settings;
-    private MongoClient mongoClient;
-    private MongoDatabase mongoDatabase;
-    private MongoCollection<Document> mongoCollection;
+    private static MongoDbModel mongoDbModel;
     private Document document;
 
     private FindIterable<Document> findIterable;
     private MongoCursor<Document> cursor;
 
-    public MongoDB connectDB() {
+    /**
+     * Establish connecting with the MongoDB.
+     *
+     */
+    public MongoDbModel connectDB() {
+        mongoDbModel = new MongoDbModel();
+        ServerConnection serverConnection = new ServerConnection();
         try {
             // set connection string
-            connString = new ConnectionString(connURL + CONNECT_TIMEOUT_MS + SOCKET_TIMEOUT_MS + WRITE_TIMEOUT_MS + SERVER_SELECTION_TIMEOUT_MS);
+            mongoDbModel.setConnString(new ConnectionString(connectionString));
             // set up behavior for the 'MongoClients'
-            settings = MongoClientSettings.builder()
+            mongoDbModel.setSettings(MongoClientSettings.builder()
                     .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS)) // block waiting for connection 
-                    .applyConnectionString(connString)
+                    .applyToServerSettings((b) -> b.addServerMonitorListener(serverConnection))
+                    .applyConnectionString(mongoDbModel.getConnString())
                     .retryWrites(true)
-                    .build();
+                    .build());
 
             // creating a mongo client 
-            mongoClient = MongoClients.create(settings);
+            mongoDbModel.setMongoClient(MongoClients.create(mongoDbModel.getSettings()));
             // get a mongo database 
-            mongoDatabase = mongoClient.getDatabase(nameDB);
+            mongoDbModel.setMongoDatabase(mongoDbModel.getMongoClient().getDatabase(nameDB));
             // get a mongo collection 
-            mongoCollection = mongoDatabase.getCollection(nameCollection);
+            mongoDbModel.setMongoCollection(mongoDbModel.getMongoDatabase().getCollection(nameCollection));
         } catch (MongoConfigurationException | MongoSocketOpenException ex) {
-            System.out.println(">Connection lost, trying to reconnect...:");
-            connectDB();
+            System.out.println("{Connection lost, trying to reconnect...:}");
         }
-        // pass values to a constructor 
-        mongoDB = new MongoDB(connString, settings, mongoClient, mongoDatabase, mongoCollection);
-
-        return mongoDB;
+        return mongoDbModel;
     }
-    // to insert data to the database
 
-    public void insertDocuments(ArrayDeque<Time> timeStampArry, MongoDB mongoDB, TimeCount timeCount) {
+    /**
+     * To insert data to the database.
+     *
+     */
+    public void insertDocuments(ArrayDeque<TimeModel> timeStampArry, TimeCount timeCount) {
         try {
             Thread.sleep(1000);
             while (true) {
@@ -94,37 +78,36 @@ public class MongoDBprocessor {
                 if (!timeStampArry.isEmpty()) {
                     try {
                         for (int a = 0; a <= timeStampArry.size(); a++) {
-                            // get collection 
-                            mongoCollection = mongoDB.getMongoCollection();
-                            // insert document to collection mongodb
-                            mongoCollection.insertOne(setDocument(timeStampArry));
+                            // get collection and insert document to collection of the mongodb
+                            mongoDbModel.getMongoCollection().insertOne(setDocument(timeStampArry));
                         }
                     } catch (MongoTimeoutException ex) {
-                        System.out.println(">Connection timed out, trying to reconnect...:");
+                        System.out.println("Time{" + timeCount.time.getTimestamp() + "} Connection timed out, trying to reconnect...:");
                     } catch (MongoSocketOpenException | MongoSecurityException | MongoSocketReadTimeoutException ex) {
-                        System.out.println(">Connection was lost, trying to reconnect...:");
+                        System.out.println("Time{" + timeCount.time.getTimestamp() + "} Connection was lost, trying to reconnect...:");
                     }
                 }
             }
         } catch (InterruptedException ex) {
-            System.out.println(">Thread Interrupted...:");
+            System.out.println("Time{" + timeCount.time.getTimestamp() + "} Thread Interrupted...:");
         }
     }
 
-    public Document setDocument(ArrayDeque<Time> timeStampArry) {
-        // creating a document 
+    /**
+     * Creating a document.
+     *
+     */
+    public Document setDocument(ArrayDeque<TimeModel> timeStampArry) {
         document = new Document("_id", new ObjectId());
         document.append("time", new Timestamp(timeStampArry.pop().getTimestamp().getTime()));
         return document;
     }
 
     //  get values from the database and display them
-    public void getDocuments(MongoDB mongoDB) {
+    public void getDocuments() {
         // get collection 
-        mongoCollection = mongoDB.getMongoCollection();
-
         // get documents from the collection
-        findIterable = mongoCollection.find().projection(excludeId());
+        findIterable = mongoDbModel.getMongoCollection().find().projection(excludeId());
 
         // initialize iterator 
         cursor = findIterable.iterator();
@@ -135,17 +118,23 @@ public class MongoDBprocessor {
             }
         } finally {
             cursor.close();
-            close(mongoDB);
+            close(mongoDbModel);
             SystemExit();
         }
     }
 
-    public void close(MongoDB mongoDB) {
-        // closing connection with mongo database
+    /**
+     * Closing connection with the mongo database.
+     *
+     */
+    public void close(MongoDbModel mongoDB) {
         mongoDB.getMongoClient().close();
     }
 
-    // to exit from the system 
+    /**
+     * Terminate the system running.
+     *
+     */
     public void SystemExit() {
         System.exit(0);
     }
