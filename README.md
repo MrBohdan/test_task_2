@@ -5,7 +5,7 @@
 * If the connection with the database was lost, the system will write all records to the database after connection will be established back. 
 * The system is written on the Core Java 8. 
 
-Before running the system change needs to change the connection link to MongoDB instance in the 'MongoDbConfig' interface.
+Before running the system needs to change the connection link to MongoDB instance in the 'MongoDbConfig' interface.
 
 <h5>To run via command line with parameters</h5>
 
