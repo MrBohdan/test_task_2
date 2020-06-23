@@ -1,6 +1,6 @@
 # Key features of the system
 
-* When the system is running it begins to write time each second to the database.
+* When the system is running it begins to write current time each second to the database and display it.
 * If the system were run with a parameter '-p' the system will display all records from the database.
 * If the connection with the database was lost, the system will write all records to the database after connection will be established back. 
 * The system is written on the Core Java 8. 
