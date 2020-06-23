@@ -17,11 +17,11 @@ public interface MongoDbConfig {
     final String WRITE_TIMEOUT_MS = "&wtimeoutMS=2000";
     // change default timeout
     final String SERVER_SELECTION_TIMEOUT_MS = "&serverSelectionTimeoutMS=5000";
-    final String nameDB = "timeDB";
-    final String nameCollection = "timeDbCollection";
+    final String NAME_DB = "timeDB";
+    final String NAME_COLLECTION = "timeDbCollection";
     
     StringBuffer stringBuffer = new StringBuffer(URL);
-    final String connectionString = stringBuffer.append(CONNECT_TIMEOUT_MS)
+    final String CONNECTION_STRING = stringBuffer.append(CONNECT_TIMEOUT_MS)
             .append(SOCKET_TIMEOUT_MS)
             .append(WRITE_TIMEOUT_MS)
             .append(SERVER_SELECTION_TIMEOUT_MS).toString();

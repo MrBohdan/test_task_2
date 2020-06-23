@@ -45,7 +45,7 @@ public class MongoDbProcessor implements MongoDbConfig {
         ServerConnection serverConnection = new ServerConnection();
         try {
             // set connection string
-            mongoDbModel.setConnString(new ConnectionString(connectionString));
+            mongoDbModel.setConnString(new ConnectionString(CONNECTION_STRING));
             // set up behavior for the 'MongoClients'
             mongoDbModel.setSettings(MongoClientSettings.builder()
                     .applyToConnectionPoolSettings((b) -> b.maxWaitTime(2000, TimeUnit.SECONDS)) // block waiting for connection 
@@ -57,9 +57,9 @@ public class MongoDbProcessor implements MongoDbConfig {
             // creating a mongo client 
             mongoDbModel.setMongoClient(MongoClients.create(mongoDbModel.getSettings()));
             // get a mongo database 
-            mongoDbModel.setMongoDatabase(mongoDbModel.getMongoClient().getDatabase(nameDB));
+            mongoDbModel.setMongoDatabase(mongoDbModel.getMongoClient().getDatabase(NAME_DB));
             // get a mongo collection 
-            mongoDbModel.setMongoCollection(mongoDbModel.getMongoDatabase().getCollection(nameCollection));
+            mongoDbModel.setMongoCollection(mongoDbModel.getMongoDatabase().getCollection(NAME_COLLECTION));
         } catch (MongoConfigurationException | MongoSocketOpenException ex) {
             System.out.println("{Connection lost, trying to reconnect...:}");
         }
